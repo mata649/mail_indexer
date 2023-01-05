@@ -20,18 +20,20 @@ func addLine(currentFilePath string, line string) {
 		fmt.Println(err)
 	}
 }
-func saveEmails(emails []Email, counter int, currentDir string) string {
+func saveEmails(emails []Email, counter int, currentDir string) {
 
 	currentFilePath := filepath.Join(currentDir, fmt.Sprintf("file%v.ndjson", counter))
 	_, err := os.Create(currentFilePath)
 	if err != nil {
 		fmt.Println(err)
 	}
+	fmt.Printf("Saving: %v \n", currentFilePath)
+
 	for _, email := range emails {
 		parsedEmail, _ := json.Marshal(email)
 		addLine(currentFilePath, `{ "index" : { "_index" : "emails" } }`)
 		addLine(currentFilePath, string(parsedEmail))
 
 	}
-	return currentFilePath
+	fmt.Printf("Saved: %v \n", currentFilePath)
 }

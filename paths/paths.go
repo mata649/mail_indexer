@@ -20,7 +20,7 @@ func GetMainPath(DirPath string) (string, error) {
 	return emailsDirPath, nil
 }
 
-func GetEmailsPaths(path string) ([]string, error) {
+func GetFilePaths(path string) ([]string, error) {
 	var emailsPaths []string
 	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
