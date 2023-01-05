@@ -7,33 +7,18 @@ import (
 	"sync"
 	"time"
 
+	"github.com/mata649/mail_indexer/config"
 	"github.com/mata649/mail_indexer/email"
 	"github.com/mata649/mail_indexer/paths"
+	"github.com/mata649/mail_indexer/zinc"
 )
 
-func dividePaths(paths []string, step int) [][]string {
-	var pathsDivided [][]string
-	startIndex := 0
-	endIndex := step
-	slices := len(paths) / step
-	totalPaths := len(paths)
-	for i := 0; i < slices; i++ {
-		if endIndex > len(paths) {
-			pathsDivided = append(pathsDivided, paths[startIndex:totalPaths])
-			break
-		} else {
-			pathsDivided = append(pathsDivided, paths[startIndex:endIndex])
+var currentConfig config.Configuration
 
-		}
-		startIndex = endIndex
-		endIndex += step
-	}
-	return pathsDivided
-}
 func saveEmails(emailPaths []string, currentDir string) {
-	step := 1000
-	emailPathsDivided := dividePaths(emailPaths, step)
-	semaphore := make(chan bool, 10)
+	step := currentConfig.EmailsPerFile
+	emailPathsDivided := paths.DividePaths(emailPaths, step)
+	semaphore := make(chan bool, currentConfig.NWorkers)
 	var wg sync.WaitGroup
 	counter := 0
 	for _, emailSlice := range emailPathsDivided {
@@ -46,14 +31,21 @@ func saveEmails(emailPaths []string, currentDir string) {
 	wg.Wait()
 }
 
-// func loadToZinc(currentDir string) error {
-// 	filePaths, err := paths.GetFilePaths(currentDir)
-// 	if err != nil {
-// 		return err
-// 	}
+func loadToZinc(currentDir string) error {
+	filePaths, err := paths.GetFilePaths(currentDir)
+	if err != nil {
+		return err
+	}
+	var wg sync.WaitGroup
+	semaphore := make(chan bool, currentConfig.NWorkers)
 
-// 	return nil
-// }
+	for _, filePath := range filePaths {
+		wg.Add(1)
+		go zinc.MakeRequest(filePath, &wg, semaphore, currentConfig)
+	}
+	wg.Wait()
+	return nil
+}
 func main() {
 	start := time.Now()
 
@@ -77,9 +69,16 @@ func main() {
 	if err != nil {
 		panic("Work directory could not be gotten")
 	}
+	currentConfig, err = config.LoadConfiguration(filepath.Join(workDir, "config.json"))
+	if err != nil {
+		panic(err)
+	}
 	currentDir := filepath.Join(workDir, "data", currentTime)
 	os.MkdirAll(currentDir, 0777)
 	saveEmails(emailPaths, currentDir)
-	// loadToZinc(currentDir)
+	err = loadToZinc(currentDir)
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println(time.Since(start))
 }
