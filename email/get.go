@@ -8,6 +8,11 @@ import (
 	"sync"
 )
 
+// Reads the given email paths and stores the data in Email structs.
+// Then, the emails are saved in files in the currentDir directory.
+// The counter variable is used to number the files.
+// A semaphore channel is passed to the function to control the concurrent access to the function, limited by nWorkers.
+// A wait group is passed to the function to control the goroutines.
 func GetEmails(emailPaths []string, currentDir string, wg *sync.WaitGroup, counter int, semaphore chan bool) {
 	semaphore <- true
 	var emails []Email
@@ -88,5 +93,4 @@ func GetEmails(emailPaths []string, currentDir string, wg *sync.WaitGroup, count
 
 	wg.Done()
 	<-semaphore
-
 }
