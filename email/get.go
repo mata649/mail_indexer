@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 )
 
-func GetEmails(emailPaths []string, currentDir string) {
-	counter := 0
+func GetEmails(emailPaths []string, currentDir string, wg *sync.WaitGroup, counter int, semaphore chan bool) {
+	semaphore <- true
 	var emails []Email
 
 	for _, path := range emailPaths {
@@ -82,13 +83,10 @@ func GetEmails(emailPaths []string, currentDir string) {
 		}
 		emails = append(emails, email)
 
-		if len(emails) == 1000 {
-			counter += 1
-			saveEmails(emails, counter, currentDir)
-			emails = []Email{}
-
-		}
 	}
 	saveEmails(emails, counter, currentDir)
+
+	wg.Done()
+	<-semaphore
 
 }
