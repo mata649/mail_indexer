@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -49,16 +50,21 @@ func loadToZinc(currentDir string) error {
 	wg.Wait()
 	return nil
 }
+
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
+
 func main() {
-	f, err := os.Create("profile.out")
-	if err != nil {
-		log.Fatal("could not create CPU profile: ", err)
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal("could not create CPU profile: ", err)
+		}
+		defer f.Close() // error handling omitted for example
+		if err := pprof.StartCPUProfile(f); err != nil {
+			log.Fatal("could not start CPU profile: ", err)
+		}
+		defer pprof.StopCPUProfile()
 	}
-	defer f.Close()
-	if err := pprof.StartCPUProfile(f); err != nil {
-		log.Fatal("could not start CPU profile: ", err)
-	}
-	defer pprof.StopCPUProfile()
 	start := time.Now()
 
 	if len(os.Args) == 1 {
@@ -94,4 +100,5 @@ func main() {
 		panic(err)
 	}
 	fmt.Println(time.Since(start))
+
 }
