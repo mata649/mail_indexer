@@ -52,8 +52,10 @@ func loadToZinc(currentDir string) error {
 }
 
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
+var emailPath = flag.String("emailpath", "", "email location")
 
 func main() {
+	flag.Parse()
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)
 		if err != nil {
@@ -67,14 +69,14 @@ func main() {
 	}
 	start := time.Now()
 
-	if len(os.Args) == 1 {
+	if *emailPath == "" {
 		panic("a directory has to be provided")
 	}
-	dirPath := os.Args[1]
+	dirPath := *emailPath
 
 	mainPath, err := paths.GetMainPath(dirPath)
 	if err != nil {
-		panic(err)
+		log.Panicf("%v : %v", err, dirPath)
 	}
 
 	emailPaths, err := paths.GetFilePaths(mainPath)
