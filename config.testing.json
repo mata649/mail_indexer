@@ -1,6 +1,6 @@
 {
     "nWorkers": 10,
-    "emailsPerFile": 1000,
+    "emailsPerFile": 100,
     "zincHost": "http://localhost:4080",
     "user": "admin",
     "password": "Complexpass#123"
