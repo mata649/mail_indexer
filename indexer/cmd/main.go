@@ -19,16 +19,6 @@ var currentConfig config.Configuration
 
 func saveEmails(emailPaths []string, currentDir string) {
 
-	f, err := os.Create("profile.out")
-	if err != nil {
-		log.Fatal("could not create CPU profile: ", err)
-	}
-	defer f.Close() // error handling omitted for example
-	if err := pprof.StartCPUProfile(f); err != nil {
-		log.Fatal("could not start CPU profile: ", err)
-	}
-	defer pprof.StopCPUProfile()
-
 	step := currentConfig.EmailsPerFile
 	emailPathsDivided := paths.DividePaths(emailPaths, step)
 	semaphore := make(chan bool, currentConfig.NWorkers)
@@ -60,6 +50,15 @@ func loadToZinc(currentDir string) error {
 	return nil
 }
 func main() {
+	f, err := os.Create("profile.out")
+	if err != nil {
+		log.Fatal("could not create CPU profile: ", err)
+	}
+	defer f.Close() // error handling omitted for example
+	if err := pprof.StartCPUProfile(f); err != nil {
+		log.Fatal("could not start CPU profile: ", err)
+	}
+	defer pprof.StopCPUProfile()
 	start := time.Now()
 
 	if len(os.Args) == 1 {
