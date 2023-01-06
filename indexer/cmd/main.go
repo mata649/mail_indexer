@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
+	"runtime/pprof"
 	"sync"
 	"time"
 
@@ -16,6 +18,17 @@ import (
 var currentConfig config.Configuration
 
 func saveEmails(emailPaths []string, currentDir string) {
+
+	f, err := os.Create("profile.out")
+	if err != nil {
+		log.Fatal("could not create CPU profile: ", err)
+	}
+	defer f.Close() // error handling omitted for example
+	if err := pprof.StartCPUProfile(f); err != nil {
+		log.Fatal("could not start CPU profile: ", err)
+	}
+	defer pprof.StopCPUProfile()
+
 	step := currentConfig.EmailsPerFile
 	emailPathsDivided := paths.DividePaths(emailPaths, step)
 	semaphore := make(chan bool, currentConfig.NWorkers)
@@ -74,11 +87,12 @@ func main() {
 		panic(err)
 	}
 	currentDir := filepath.Join(workDir, "data", currentTime)
+
 	os.MkdirAll(currentDir, 0777)
 	saveEmails(emailPaths, currentDir)
-	// err = loadToZinc(currentDir)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	err = loadToZinc(currentDir)
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println(time.Since(start))
 }
