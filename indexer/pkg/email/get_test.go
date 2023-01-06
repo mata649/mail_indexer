@@ -27,13 +27,13 @@ func TestGetEmails(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error getting the current work directory")
 	}
-	testingDir := filepath.Join(currentWorkDir, "..", "testing")
+	testingDir := filepath.Join(currentWorkDir, "..", "..", "testing")
 	emailPaths, err := paths.GetFilePaths(filepath.Join(testingDir, "emails"))
 
 	if err != nil {
 		t.Fatalf("Error getting the emails")
 	}
-	currentConfig, err := config.LoadConfiguration(filepath.Join(currentWorkDir, "..", "config.testing.json"))
+	currentConfig, err := config.LoadConfiguration(filepath.Join(currentWorkDir, "..", "..", "config.testing.json"))
 	if err != nil {
 		t.Fatalf("Error getting the testing configuration")
 	}

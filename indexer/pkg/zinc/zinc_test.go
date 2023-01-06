@@ -16,7 +16,7 @@ func TestMakeRequest(t *testing.T) {
 		t.Fatalf("Error getting the current work directory")
 	}
 
-	currentConfig, err := config.LoadConfiguration(filepath.Join(currentWorkDir, "..", "config.testing.json"))
+	currentConfig, err := config.LoadConfiguration(filepath.Join(currentWorkDir, "..", "..", "config.testing.json"))
 	if err != nil {
 		t.Fatalf("Error getting the testing configuration")
 	}
