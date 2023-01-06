@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/mata649/mail_indexer/config"
+	"github.com/mata649/mail_indexer/pkg/config"
 )
 
 type ZincResponse struct {

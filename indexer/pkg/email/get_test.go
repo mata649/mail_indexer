@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mata649/mail_indexer/config"
-	"github.com/mata649/mail_indexer/paths"
+	"github.com/mata649/mail_indexer/pkg/config"
+	"github.com/mata649/mail_indexer/pkg/paths"
 )
 
 // Please fill the emails directory with the emails to test

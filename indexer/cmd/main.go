@@ -7,10 +7,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mata649/mail_indexer/config"
-	"github.com/mata649/mail_indexer/email"
-	"github.com/mata649/mail_indexer/paths"
-	"github.com/mata649/mail_indexer/zinc"
+	"github.com/mata649/mail_indexer/pkg/config"
+	"github.com/mata649/mail_indexer/pkg/email"
+	"github.com/mata649/mail_indexer/pkg/paths"
+	"github.com/mata649/mail_indexer/pkg/zinc"
 )
 
 var currentConfig config.Configuration

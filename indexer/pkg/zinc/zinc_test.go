@@ -7,7 +7,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/mata649/mail_indexer/config"
+	"github.com/mata649/mail_indexer/pkg/config"
 )
 
 func TestMakeRequest(t *testing.T) {
