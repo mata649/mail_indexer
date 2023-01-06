@@ -76,9 +76,9 @@ func main() {
 	currentDir := filepath.Join(workDir, "data", currentTime)
 	os.MkdirAll(currentDir, 0777)
 	saveEmails(emailPaths, currentDir)
-	err = loadToZinc(currentDir)
-	if err != nil {
-		panic(err)
-	}
+	// err = loadToZinc(currentDir)
+	// if err != nil {
+	// 	panic(err)
+	// }
 	fmt.Println(time.Since(start))
 }
