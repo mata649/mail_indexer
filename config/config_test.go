@@ -16,6 +16,8 @@ func TestLoadConfiguration(t *testing.T) {
 		"Password": "password"
 	}`
 	tmpFile, err := ioutil.TempFile("", "config-*.json")
+
+	defer tmpFile.Close()
 	if err != nil {
 		t.Fatalf("Error creating temp file: %v", err)
 	}
