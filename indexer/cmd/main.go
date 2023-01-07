@@ -13,7 +13,6 @@ import (
 	"github.com/mata649/mail_indexer/pkg/config"
 	"github.com/mata649/mail_indexer/pkg/email"
 	"github.com/mata649/mail_indexer/pkg/paths"
-	"github.com/mata649/mail_indexer/pkg/zinc"
 )
 
 var currentConfig config.Configuration
@@ -35,21 +34,21 @@ func saveEmails(emailPaths []string, currentDir string) {
 	wg.Wait()
 }
 
-func loadToZinc(currentDir string) error {
-	filePaths, err := paths.GetFilePaths(currentDir)
-	if err != nil {
-		return err
-	}
-	var wg sync.WaitGroup
-	semaphore := make(chan bool, currentConfig.NWorkers)
+// func loadToZinc(currentDir string) error {
+// 	filePaths, err := paths.GetFilePaths(currentDir)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	var wg sync.WaitGroup
+// 	semaphore := make(chan bool, currentConfig.NWorkers)
 
-	for _, filePath := range filePaths {
-		wg.Add(1)
-		go zinc.MakeRequest(filePath, &wg, semaphore, currentConfig)
-	}
-	wg.Wait()
-	return nil
-}
+// 	for _, filePath := range filePaths {
+// 		wg.Add(1)
+// 		go zinc.MakeRequest(filePath, &wg, semaphore, currentConfig)
+// 	}
+// 	wg.Wait()
+// 	return nil
+// }
 
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
 var emailPath = flag.String("emailpath", "", "email location")
@@ -97,10 +96,10 @@ func main() {
 
 	os.MkdirAll(currentDir, 0777)
 	saveEmails(emailPaths, currentDir)
-	err = loadToZinc(currentDir)
-	if err != nil {
-		panic(err)
-	}
+	// err = loadToZinc(currentDir)
+	// if err != nil {
+	// 	panic(err)
+	// }
 	fmt.Println(time.Since(start))
 
 }

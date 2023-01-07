@@ -2,7 +2,12 @@ package email
 
 import (
 	"bufio"
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
+	"log"
+	"net/http"
 	"os"
 	"strings"
 	"sync"
@@ -89,8 +94,44 @@ func ParseEmails(emailPaths []string, currentDir string, wg *sync.WaitGroup, cou
 		emails = append(emails, email)
 
 	}
-	saveEmails(emails, counter, currentDir)
-
+	bytesEmail := saveEmails(emails)
+	resp := MakeRequestV2(bytesEmail)
+	fmt.Println(resp)
 	wg.Done()
 	<-semaphore
+}
+
+type ZincResponse struct {
+	Message     string `json:"message"`
+	RecordCount int    `json:"record_count"`
+}
+
+func MakeRequestV2(bytesEmail *bytes.Buffer) ZincResponse {
+
+	req, err := http.NewRequest("POST", "http://localhost:4080/api/_bulk", bytesEmail)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.SetBasicAuth("admin", "Complexpass#123")
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	log.Println(resp.StatusCode)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(string(body))
+
+	zincResponse := ZincResponse{}
+	err = json.Unmarshal(body, &zincResponse)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return zincResponse
 }
