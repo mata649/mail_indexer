@@ -63,6 +63,7 @@ func main() {
 		}
 		defer pprof.StopCPUProfile()
 	}
+
 	start := time.Now()
 
 	if *emailPath == "" {
@@ -82,6 +83,7 @@ func main() {
 
 	saveEmails(emailPaths)
 	fmt.Println(time.Since(start))
+
 	if *memprofile != "" {
 		f, err := os.Create(*memprofile)
 		if err != nil {
