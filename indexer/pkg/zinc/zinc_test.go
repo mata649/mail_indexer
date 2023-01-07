@@ -1,54 +1,41 @@
 package zinc
 
 import (
-	"io/ioutil"
+	"bytes"
 	"os"
 	"path/filepath"
-	"sync"
 	"testing"
 
 	"github.com/mata649/mail_indexer/pkg/config"
 )
 
 func TestMakeRequest(t *testing.T) {
-	currentWorkDir, err := os.Getwd()
+
+	expectedResponse := ZincResponse{
+		Message:     "Success",
+		RecordCount: 2,
+	}
+
+	// Test data
+	bytesEmail := bytes.NewBufferString(`
+		{ "index" : { "_index" : "emails" } }
+		{"message_id":"123","date":"2022-01-01","from":"john@example.com","to":["mary@example.com"],"subject":"Hello","content":"Hello, Mary!"}
+		{ "index" : { "_index" : "emails" } }
+		{"message_id":"456","date":"2022-01-02","from":"mary@example.com","to":["john@example.com"],"subject":"Re: Hello","content":"Hi, John!"}
+	`)
+	workDir, err := os.Getwd()
 	if err != nil {
-		t.Fatalf("Error getting the current work directory")
+		panic(err)
 	}
-
-	currentConfig, err := config.LoadConfiguration(filepath.Join(currentWorkDir, "..", "..", "config.testing.json"))
+	currentConfig, err := config.LoadConfiguration(filepath.Join(workDir, "..", "..", "config.testing.json"))
 	if err != nil {
-		t.Fatalf("Error getting the testing configuration")
+		panic(err)
 	}
 
-	// Create a test file
-	tempFile, err := ioutil.TempFile("", "test_file")
-	if err != nil {
-		t.Errorf("Error creating temp file: %v", err)
-	}
-	defer tempFile.Close()
-	defer os.Remove(tempFile.Name()) // clean up
+	actualResponse := MakeRequest(bytesEmail, currentConfig)
 
-	// Write some JSON data to the file
-	jsonData := `{ "index" : { "_index" : "emails" } }
-	{"messageID":"test-1","date":"01/01/2022","from":"test@example.com","to":["recipient1@example.com","recipient2@example.com"],"subject":"Test Email 1","content":"This is the content of test email 1"}`
-	if _, err := tempFile.Write([]byte(jsonData)); err != nil {
-		t.Errorf("Error writing to temp file: %v", err)
-	}
-
-	// Initialize a wait group and semaphore channel for the test
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-	semaphore := make(chan bool, 1)
-
-	// Call the MakeRequest function
-	zincReponse := MakeRequest(tempFile.Name(), &wg, semaphore, currentConfig)
-	wg.Wait()
-
-	// Check the response for correctness
-	// TODO: write the remainder of the test
-
-	if zincReponse.RecordCount == 0 {
-		t.Errorf("The email was not found in the zinc engine")
+	// Comparing the response record count with the expected record count
+	if expectedResponse.RecordCount != actualResponse.RecordCount {
+		t.Errorf("Error: record expected to be: %v, got %v", expectedResponse.RecordCount, actualResponse.RecordCount)
 	}
 }

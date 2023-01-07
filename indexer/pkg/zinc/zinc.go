@@ -4,10 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"sync"
 
 	"github.com/mata649/mail_indexer/pkg/config"
 )
@@ -17,22 +15,19 @@ type ZincResponse struct {
 	RecordCount int    `json:"record_count"`
 }
 
-// Makes a request to the given URL with the provided configuration.
-// The request is a POST request with the JSON payload read from the specified file path.
-// If the request is successful, the function prints the status code and the response body.
-// Otherwise, it prints an error message.
-func MakeRequest(filePath string, wg *sync.WaitGroup, semaphore chan bool, currentConfig config.Configuration) ZincResponse {
-	semaphore <- true
-	jsonStr, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		panic(err)
-	}
+// Makes a POST request to the specified zinc host with the provided bytes buffer in the request body.
+// It takes in a pointer to a bytes.Buffer bytesEmail and a pointer to a Configuration, returns a ZincResponse struct.
+// The request is authenticated using basic auth with the provided username and password.
+// The content type of the request is set to "application/json".
+// The response body is read and unmarshalled into a ZincResponse struct.
+// If any errors occur during the request or response processing, they are logged and the program exits.
+func MakeRequest(bytesEmail *bytes.Buffer, currentConfig *config.Configuration) ZincResponse {
 
-	req, err := http.NewRequest("POST", currentConfig.ZincHost+"/api/_bulk", bytes.NewBuffer(jsonStr))
+	req, err := http.NewRequest("POST", currentConfig.ZincHost+"/api/_bulk", bytesEmail)
 	if err != nil {
 		log.Fatal(err)
 	}
-	req.SetBasicAuth(currentConfig.User, currentConfig.Password)
+	req.SetBasicAuth("admin", "Complexpass#123")
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
@@ -53,7 +48,5 @@ func MakeRequest(filePath string, wg *sync.WaitGroup, semaphore chan bool, curre
 	if err != nil {
 		log.Fatal(err)
 	}
-	wg.Done()
-	<-semaphore
 	return zincResponse
 }

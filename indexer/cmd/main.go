@@ -14,42 +14,36 @@ import (
 	"github.com/mata649/mail_indexer/pkg/config"
 	"github.com/mata649/mail_indexer/pkg/email"
 	"github.com/mata649/mail_indexer/pkg/paths"
-	"github.com/mata649/mail_indexer/pkg/zinc"
 )
 
-var currentConfig config.Configuration
+var currentConfig *config.Configuration
 
-func saveEmails(emailPaths []string, currentDir string) {
+// saveEmails processes a slice of email paths in parallel using a number of workers specified in the configuration file.
+// It takes in a slice of strings emailPaths which represents the paths of the emails to be processed.
+// The emails are divided into smaller slices and sent to the email.ParseEmails function in separate goroutines.
+// A semaphore is used to control the number of concurrent goroutines.
+// The function blocks until all goroutines have finished processing the emails.
+func saveEmails(emailPaths []string) {
+	workDir, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	currentConfig, err := config.LoadConfiguration(filepath.Join(workDir, "config.json"))
+	if err != nil {
+		panic(err)
+	}
 
 	step := currentConfig.EmailsPerFile
 	emailPathsDivided := paths.DividePaths(emailPaths, step)
 	semaphore := make(chan bool, currentConfig.NWorkers)
 	var wg sync.WaitGroup
-	counter := 0
 	for _, emailSlice := range emailPathsDivided {
 		wg.Add(1)
-		counter += 1
-		go email.ParseEmails(emailSlice, currentDir, &wg, counter, semaphore)
+		go email.MakeIngestion(emailSlice, &wg, semaphore, currentConfig)
 
 	}
 
 	wg.Wait()
-}
-
-func loadToZinc(currentDir string) error {
-	filePaths, err := paths.GetFilePaths(currentDir)
-	if err != nil {
-		return err
-	}
-	var wg sync.WaitGroup
-	semaphore := make(chan bool, currentConfig.NWorkers)
-
-	for _, filePath := range filePaths {
-		wg.Add(1)
-		go zinc.MakeRequest(filePath, &wg, semaphore, currentConfig)
-	}
-	wg.Wait()
-	return nil
 }
 
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
@@ -87,23 +81,7 @@ func main() {
 		panic(err)
 	}
 
-	currentTime := time.Now().Format("2006-01-02 15:04:05")
-	workDir, err := os.Getwd()
-	if err != nil {
-		panic("Work directory could not be gotten")
-	}
-	currentConfig, err = config.LoadConfiguration(filepath.Join(workDir, "config.json"))
-	if err != nil {
-		panic(err)
-	}
-	currentDir := filepath.Join(workDir, "data", currentTime)
-
-	os.MkdirAll(currentDir, 0777)
-	saveEmails(emailPaths, currentDir)
-	err = loadToZinc(currentDir)
-	if err != nil {
-		panic(err)
-	}
+	saveEmails(emailPaths)
 	fmt.Println(time.Since(start))
 
 	if *memprofile != "" {
