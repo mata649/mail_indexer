@@ -28,7 +28,7 @@ func saveEmails(emailPaths []string, currentDir string) {
 	for _, emailSlice := range emailPathsDivided {
 		wg.Add(1)
 		counter += 1
-		go email.GetEmails(emailSlice, currentDir, &wg, counter, semaphore)
+		go email.ParseEmails(emailSlice, currentDir, &wg, counter, semaphore)
 
 	}
 

@@ -13,7 +13,7 @@ import (
 // The counter variable is used to number the files.
 // A semaphore channel is passed to the function to control the concurrent access to the function, limited by nWorkers.
 // A wait group is passed to the function to control the goroutines.
-func GetEmails(emailPaths []string, currentDir string, wg *sync.WaitGroup, counter int, semaphore chan bool) {
+func ParseEmails(emailPaths []string, currentDir string, wg *sync.WaitGroup, counter int, semaphore chan bool) {
 	semaphore <- true
 	var emails []Email
 

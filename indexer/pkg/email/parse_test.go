@@ -13,7 +13,7 @@ import (
 )
 
 // Please fill the emails directory with the emails to test
-func TestGetEmails(t *testing.T) {
+func TestParseEmails(t *testing.T) {
 	// Previous params to test the function
 
 	// Temp dir to save the data
@@ -52,7 +52,7 @@ func TestGetEmails(t *testing.T) {
 	for _, emailSlice := range emailPathsDivided {
 		wg.Add(1)
 		counter += 1
-		go GetEmails(emailSlice, dataDir, &wg, counter, semaphore)
+		go ParseEmails(emailSlice, dataDir, &wg, counter, semaphore)
 
 	}
 	wg.Wait()
