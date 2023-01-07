@@ -6,6 +6,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/mata649/mail_indexer/pkg/config"
 )
 
 type ZincResponse struct {
@@ -13,9 +15,15 @@ type ZincResponse struct {
 	RecordCount int    `json:"record_count"`
 }
 
-func MakeRequest(bytesEmail *bytes.Buffer) ZincResponse {
+// Makes a POST request to the specified zinc host with the provided bytes buffer in the request body.
+// It takes in a pointer to a bytes.Buffer bytesEmail and a pointer to a Configuration, returns a ZincResponse struct.
+// The request is authenticated using basic auth with the provided username and password.
+// The content type of the request is set to "application/json".
+// The response body is read and unmarshalled into a ZincResponse struct.
+// If any errors occur during the request or response processing, they are logged and the program exits.
+func MakeRequest(bytesEmail *bytes.Buffer, currentConfig *config.Configuration) ZincResponse {
 
-	req, err := http.NewRequest("POST", "http://localhost:4080/api/_bulk", bytesEmail)
+	req, err := http.NewRequest("POST", currentConfig.ZincHost+"/api/_bulk", bytesEmail)
 	if err != nil {
 		log.Fatal(err)
 	}

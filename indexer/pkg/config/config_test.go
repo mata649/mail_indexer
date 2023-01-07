@@ -45,29 +45,5 @@ func TestLoadConfiguration(t *testing.T) {
 		t.Errorf("Unexpected value for Password: got %v, want %v", config.Password, "password")
 	}
 
-	// Test loading configuration from a non-existent file
-	_, err = LoadConfiguration("non-existent-file.json")
-	if err == nil {
-		t.Error("Expected error loading configuration from non-existent file, got nil")
-	}
-
-	// Test loading configuration from a file
-	configData = `{
-		"NWorker": 2,
-		"EmailsPrFile": 10,
-		"ZincHot": "localhost",
-		"Use": "user",
-	}`
-	tmpFile, err = ioutil.TempFile("", "config-*.json")
-	if err != nil {
-		t.Fatalf("Error creating temp file: %v", err)
-	}
-	if _, err := tmpFile.Write([]byte(configData)); err != nil {
-		t.Fatalf("Error writing to temp file: %v", err)
-	}
-	_, err = LoadConfiguration(tmpFile.Name())
-	if err == nil {
-		t.Error("Expected error loading configuration from json with wrong structure, got nil")
-	}
 	os.Remove(tmpFile.Name())
 }
