@@ -12,7 +12,7 @@ The Indexer is the core of the application, it receives a path of email as an ar
 4. Iterates the divided paths concurrently, the number of goroutines running at the same time can be set in the **config.json**, with the property nWorkers
 5. Iterates the paths to get the email from each file, then the email is added to a slice of emails.
 6. When all the emails have been obtained, the slice of emails is converted into a buffer of bytes in an NDJSON format
-7. Make the request to the Zinc Engine sending the buffer of bytes as a Binary, the user, password, and host of the Zinc Engine can be set in the **config.json**
+7. Makes the request to the Zinc Engine sending the buffer of bytes as a Binary, the user, password, and host of the Zinc Engine can be set in the **config.json**
 ### Running the code
 #### Important
 In Linux, the program throws an error due to the number of files that a process can open, you can avoid this error by changing in the **config.json** the emailsPerFile, by default it is in **1000**, but if you are having problems with this you can set **100** emailsPerFile.
