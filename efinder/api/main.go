@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -120,18 +119,27 @@ func main() {
 
 	r := chi.NewRouter()
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		currentDir, err := os.Getwd()
-		if err != nil {
-			http.Error(w, "Error getting cwd", http.StatusInternalServerError)
-		}
-		staticDir := filepath.Join(currentDir, "static")
-		if _, err := os.Stat(staticDir + r.URL.Path); errors.Is(err, os.ErrNotExist) {
-			http.ServeFile(w, r, filepath.Join(staticDir, "index.html"))
-		}
-		http.ServeFile(w, r, staticDir+r.URL.Path)
-	})
 	r.Get("/search", searchInZincEngine)
-
+	FileServer(r)
 	log.Fatal(http.ListenAndServe(":"+port, r))
+
+}
+
+// FileServer is serving static files.
+func FileServer(router *chi.Mux) {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	root := filepath.Join(currentDir, "static")
+
+	fs := http.FileServer(http.Dir(root))
+
+	router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+		if _, err := os.Stat(root + r.RequestURI); os.IsNotExist(err) {
+			http.StripPrefix(r.RequestURI, fs).ServeHTTP(w, r)
+		} else {
+			fs.ServeHTTP(w, r)
+		}
+	})
 }
