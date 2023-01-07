@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"runtime/pprof"
 	"sync"
 	"time"
@@ -52,6 +53,7 @@ func loadToZinc(currentDir string) error {
 }
 
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
+var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
 var emailPath = flag.String("emailpath", "", "email location")
 
 func main() {
@@ -67,6 +69,7 @@ func main() {
 		}
 		defer pprof.StopCPUProfile()
 	}
+
 	start := time.Now()
 
 	if *emailPath == "" {
@@ -103,4 +106,15 @@ func main() {
 	}
 	fmt.Println(time.Since(start))
 
+	if *memprofile != "" {
+		f, err := os.Create(*memprofile)
+		if err != nil {
+			log.Fatal("could not create memory profile: ", err)
+		}
+		defer f.Close() // error handling omitted for example
+		runtime.GC()    // get up-to-date statistics
+		if err := pprof.WriteHeapProfile(f); err != nil {
+			log.Fatal("could not write memory profile: ", err)
+		}
+	}
 }
