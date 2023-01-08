@@ -16,7 +16,6 @@ import (
 	"github.com/mata649/mail_indexer/pkg/paths"
 )
 
-var currentConfig *config.Configuration
 
 // saveEmails processes a slice of email paths in parallel using a number of workers specified in the configuration file.
 // It takes in a slice of strings emailPaths which represents the paths of the emails to be processed.
@@ -69,9 +68,8 @@ func main() {
 	if *emailPath == "" {
 		panic("a directory has to be provided")
 	}
-	dirPath := *emailPath
 
-	mainPath, err := paths.GetMainPath(dirPath)
+	mainPath, err := paths.GetMainPath(*emailPath)
 	if err != nil {
 		log.Panicf("%v : %v", err, dirPath)
 	}
