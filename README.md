@@ -43,7 +43,7 @@ In the **v1** of the program, all are relatively similar until steps 6 and 7 in 
  6. When all the emails have been obtained, the slice of emails is converted into a buffer of bytes in an NDJSON format
  7. Make the request to the Zinc Engine sending the buffer of bytes as a Binary, the user, password, and host of the Zinc Engine can be set in the **config.json**
 
-In the **v1** after of have been obtained the slice of emails, they were stored in a file in a data directory, with a folder with the date-time of the running as name: `2023-01-07 14:13:56`. In that folder, the files were enumerated with a number, for example: **file1.ndjson**, **file2.ndjson**, ...., with the number of emails setted in **emailsPerFile** in each file. Then when we are going to ingest the **Zinc Engine** with the emails, we have to get the paths of the files and read them to get the bytes of buffer to send to the Zinc Engine.
+In the **v1** after of have been obtained the slice of emails, they were stored in a file in a data directory, with a folder with the date-time of the running as name: `2023-01-07 14:13:56`. In that folder, the files were enumerated with a number, for example: **file1.ndjson**, **file2.ndjson**, ...., with the number of emails set in **emailsPerFile** in each file. Then when we are going to ingest the **Zinc Engine** with the emails, we have to get the paths of the files and read them to get the bytes of buffer to send to the Zinc Engine.
 
 This has some advantages and disadvantages,
 #### Advantages
