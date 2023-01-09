@@ -16,7 +16,6 @@ import (
 	"github.com/mata649/mail_indexer/pkg/paths"
 )
 
-
 // saveEmails processes a slice of email paths in parallel using a number of workers specified in the configuration file.
 // It takes in a slice of strings emailPaths which represents the paths of the emails to be processed.
 // The emails are divided into smaller slices and sent to the email.ParseEmails function in separate goroutines.
@@ -71,7 +70,7 @@ func main() {
 
 	mainPath, err := paths.GetMainPath(*emailPath)
 	if err != nil {
-		log.Panicf("%v : %v", err, dirPath)
+		log.Panicf("%v : %v", err, *&mainPath)
 	}
 
 	emailPaths, err := paths.GetFilePaths(mainPath)
