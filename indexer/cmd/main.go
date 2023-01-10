@@ -18,7 +18,7 @@ import (
 
 // saveEmails processes a slice of email paths in parallel using a number of workers specified in the configuration file.
 // It takes in a slice of strings emailPaths which represents the paths of the emails to be processed.
-// The emails are divided into smaller slices and sent to the email.ParseEmails function in separate goroutines.
+// The emails are divided into smaller slices and sent to the email.MakeIngestion function in separate goroutines.
 // A semaphore is used to control the number of concurrent goroutines.
 // The function blocks until all goroutines have finished processing the emails.
 func saveEmails(emailPaths []string) {
