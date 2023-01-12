@@ -18,6 +18,7 @@ import (
 // Makes a request to the zinc host using the MakeRequest function, passing the bytesEmail buffer and the
 // currentConfig struct.
 func MakeIngestion(emailPaths []string, wg *sync.WaitGroup, semaphore chan bool, currentConfig *config.Configuration) {
+	defer wg.Done()
 	semaphore <- true
 	var emails []Email
 
@@ -36,6 +37,6 @@ func MakeIngestion(emailPaths []string, wg *sync.WaitGroup, semaphore chan bool,
 	bytesEmail := createNdjsonBuffer(emails)
 	resp := zinc.MakeRequest(bytesEmail, currentConfig)
 	fmt.Println(resp)
-	wg.Done()
 	<-semaphore
+
 }
