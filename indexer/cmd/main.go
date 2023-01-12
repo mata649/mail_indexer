@@ -34,6 +34,7 @@ func saveEmails(emailPaths []string) {
 	step := currentConfig.EmailsPerFile
 	emailPathsDivided := paths.DividePaths(emailPaths, step)
 	semaphore := make(chan bool, currentConfig.NWorkers)
+	defer close(semaphore)
 	var wg sync.WaitGroup
 	for _, emailSlice := range emailPathsDivided {
 		wg.Add(1)
