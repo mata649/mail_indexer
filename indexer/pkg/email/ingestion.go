@@ -20,6 +20,10 @@ import (
 func MakeIngestion(emailPaths []string, wg *sync.WaitGroup, semaphore chan bool, currentConfig *config.Configuration) {
 	defer wg.Done()
 	semaphore <- true
+	defer func() {
+		<-semaphore
+	}()
+
 	var emails []Email
 
 	for _, path := range emailPaths {
@@ -37,6 +41,5 @@ func MakeIngestion(emailPaths []string, wg *sync.WaitGroup, semaphore chan bool,
 	bytesEmail := createNdjsonBuffer(emails)
 	resp := zinc.MakeRequest(bytesEmail, currentConfig)
 	fmt.Println(resp)
-	<-semaphore
 
 }
