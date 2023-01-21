@@ -79,10 +79,17 @@ func searchInZincEngine(w http.ResponseWriter, r *http.Request) {
 	}
 	if len(emails) > 0 {
 
-		json.NewEncoder(w).Encode(emails)
+		err := json.NewEncoder(w).Encode(emails)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 		return
 	}
-	json.NewEncoder(w).Encode([]string{})
+	err = json.NewEncoder(w).Encode([]string{})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+	}
 
 }
 
